@@ -7,12 +7,6 @@
 ;
 ; Use shamconv.py to convert images to .sham format
 
-debug:      equ 0
-
-IF debug
-dcols:      equ 6               ; 6 to 11 (for debugging only)
-ENDIF
-
 palette:    equ &f8             ; palette port (CLUT)
 status:     equ &f9             ; interrupt status port
 line:       equ &f9             ; line interrupt position
@@ -116,16 +110,6 @@ img_ptr:    dw 0                ; pointer to image data
 
 ; Expand image data and prepare for viewing
 prepare_img:
-
-IF debug
-width: equ 256 - 32*(dcols-6)
-            ld  hl,&8000+((256-width)/4)
-            ld  b,width/2
-            ld  c,&06
-draw_lp:    ld  (hl),c
-            inc l
-            djnz draw_lp
-ENDIF
             xor a
             ld  bc,&0ff8
 black_lp:   out (c),a           ; set palette to all black
@@ -148,9 +132,7 @@ black_lp:   out (c),a           ; set palette to all black
 
             ld  c,(hl)          ; dynamic colours per line
             inc hl
-IF debug
-            ld  c,dcols         ; debug override for raster adjustment
-ENDIF
+
             push bc
 
             ld  a,11            ; max dynamic palette size for viewer
@@ -170,9 +152,6 @@ ENDIF
 
             ld  a,(hl)          ; border index
             inc hl
-IF debug
-            xor a
-ENDIF
             out (border),a
 
             ld  b,a             ; low nibble
@@ -200,9 +179,6 @@ fill_lp:    ld  (de),a          ; fill display
             exx
             ld  b,a             ; line counter for copy loop below
             dec a               ; first entry is set in frame interrupt
-IF debug
-            ld  a,4             ; 4 lines is plenty for debugging
-ENDIF
             ld  (p_ld_de+1),a   ; set line count for raster effect
             ld  a,&c0           ; screen height
             sub b               ; subtract image height
@@ -215,9 +191,7 @@ ENDIF
             scf                 ; top bit for display address
             rra                 ; y to display MSB
             ld  d,a
-IF debug
-            ld  d,&90
-ENDIF
+
             ld  a,&80           ; screen width in bytes
             sub c               ; subtract image width
             ld  e,a             ; display LSB
@@ -238,15 +212,9 @@ cpylp:      exx
             djnz cpylp          ; loop until all lines copied
             exx
 
-IF debug
-            ld  hl,palette
-ENDIF
             ld  (p_palette+1),hl ; start of static palette
             ld  de,16           ; 16 entries
             add hl,de
-IF debug
-            ld  hl,palette
-ENDIF
             ld  (p_ld_hl+1),hl  ; start of dynamic palette
 
             ex  de,hl
@@ -284,15 +252,6 @@ next_page:  ex  af,af'
             defs 64
 new_stack:
 
-IF debug
-palette:
-times: EQU FOR 4
-    FOR 16-dcols, defb 0
-    FOR dcols, defb 64
-    FOR dcols, defb 0
-NEXT times
-ENDIF
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Interrupt-driven viewer
@@ -316,11 +275,7 @@ p_ld_b:     ld  b,0             ; delay to left of
             djnz $
 
 line_lp:
-IF debug
-            ld  b,&01           ; first write to CLUT 0 for testing
-ELSE
             ld  b,&10           ; final CLUT entry +1 for first OUTI
-ENDIF
 p_jr:       jr  $               ; skip the OUTIs we don't need
             outi                ; the remainder set the dynamic palette
             outi
