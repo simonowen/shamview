@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ufwb version="1.2">
+    <grammar name="SHAM" start="id:135" author="Simon Owen" email="simon@simonowen.com" fileextension="sham" complete="yes">
+        <description>SAM Coupé HAM image</description>
+        <structure name="SHAM file" id="135" alignment="1" consists-of="id:136" encoding="ISO_8859-1:1987" endian="little" signed="no">
+            <structure name="Header" id="136" alignment="1" endian="little">
+                <string name="Signature" mustmatch="yes" id="137" fillcolor="E4867A" type="fixed-length" length="2">
+                    <fixedvalues>
+                        <fixedvalue value="SH"/>
+                    </fixedvalues>
+                </string>
+                <number name="FormatVersion" id="138" fillcolor="F3D57C" type="integer" length="1"/>
+                <number name="DynamicColours" id="139" fillcolor="FDFA7D" type="integer" length="1" minval="6" maxval="11"/>
+                <number name="BorderIndex" id="140" fillcolor="E0F87D" type="integer" length="1" minval="0" maxval="9"/>
+                <number name="ByteWidth" id="141" fillcolor="9AD3FE" type="integer" length="1" minval="2" maxval="128">
+                    <mask name="Even" value="0xFE">
+                        <fixedvalue name="Even" value="0xFE"/>
+                    </mask>
+                </number>
+                <number name="Height" id="142" fillcolor="C38BFD" type="integer" length="1" minval="1" maxval="192"/>
+                <binary name="Reserved" id="143" fillcolor="7C83FD" length="1"/>
+            </structure>
+            <structure name="Bitmap" id="145" length="Height*ByteWidth" alignment="1">
+                <binary name="Data" id="146" fillcolor="D5D5D5" length="Height*ByteWidth"/>
+            </structure>
+            <structure name="InitialPalette" id="148" length="16" alignment="1">
+                <binary name="ReversedColours" id="149" fillcolor="9AD3FE" length="16"/>
+            </structure>
+            <structure name="DynamicPalette" id="151" length="DynamicColours*(Height-1)">
+                <binary name="LineColours" id="152" fillcolor="ABF7D5" repeatmin="Height-1" repeatmax="Height-1" length="DynamicColours"/>
+            </structure>
+            <structure name="Footer" id="154" length="2" endian="little">
+                <string name="EndMarker" mustmatch="yes" id="155" fillcolor="E4867A" type="fixed-length" length="2">
+                    <fixedvalues>
+                        <fixedvalue value="AM"/>
+                    </fixedvalues>
+                </string>
+            </structure>
+        </structure>
+    </grammar>
+</ufwb>

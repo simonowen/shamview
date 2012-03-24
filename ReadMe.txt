@@ -39,6 +39,13 @@ There should be space for around 16 full-size images.  If the display is blank
 you've probably overwritten DOS during loading, so try removing some images.
 
 
+Extras
+------
+
+I've included a grammar file to view .sham files in for Synalyze It! (OS X)
+To install, copy to: ~/Library/Application Support/Synalyze It\!
+
+
 To-Do
 -----
 
